@@ -18,7 +18,7 @@ used in printing presses, so it seemed a fitting choice for a program trying to 
 - Handling installation of TinyTeX directly by frisket
 
 ## Installation
-frisket depends on TeXLive, the recommended installation is through TinyTeX-1 providing a minimal but useable set of LaTeX tools and packages.
+frisket depends on TeXLive, the recommended installation is through TinyTeX-1 providing a minimal but usable set of LaTeX tools and packages.
 
 For now frisket has to be build and installed by hand,
 but we plan to release it as a crate in the future.
