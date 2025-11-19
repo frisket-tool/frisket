@@ -69,18 +69,20 @@ pub fn search_file(filename: &str) {
     }
     if packages.is_empty() {
         println!("File not found through TeXLive manager.\n Exiting.");
-    }
-    else if packages.len() == 1{
+    } else if packages.len() == 1 {
         let confirmation = Confirm::new()
-        .with_prompt(format!("Found {} in {}, do you want to install it?",filename,packages.first().unwrap()))
-        .interact()
-        .unwrap();
+            .with_prompt(format!(
+                "Found {} in {}, do you want to install it?",
+                filename,
+                packages.first().unwrap()
+            ))
+            .interact()
+            .unwrap();
 
         if confirmation {
             install_pkg(packages.first().unwrap());
             println!("Retrying build! (TODO)");
         }
     } else {
-
     }
 }
