@@ -18,8 +18,12 @@ pub fn initialize_project_directory(directory: String) {
     // Create texproject.toml
     let mut projecttoml = File::create("texproject.toml").expect("file could not be created");
     indoc::writedoc! {projecttoml,r#"
-        [project]
         main = "main.tex"
+        [tools]
+        tex = "pdflatex"
+        bib = "bibtex"
+        format = "texfmt"
+        lint = "chktex"
 
         [dependencies]
     "#}

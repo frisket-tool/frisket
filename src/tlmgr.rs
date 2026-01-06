@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-use std::{path::Path, process::Command};
+use std::{
+    path::Path,
+    process::{self, Command},
+};
 
 use dialoguer::Confirm;
 
@@ -18,10 +21,14 @@ pub fn install_pkg(pkgname: &str) {
         pkgname.to_string(),
     ];
     let output = crate::core::exec_within_texenv("tlmgr", args);
-    // if !tlmgroutput.status.success() {
-    println!("{}", String::from_utf8(output.stdout).unwrap());
-    println!("{}", String::from_utf8(output.stderr).unwrap());
-    // }
+    if !output.status.success() {
+        println!(
+            "Error installing package from TexLive, see following tlmgr output for more details:"
+        );
+        println!("{}", String::from_utf8(output.stdout).unwrap());
+        println!("{}", String::from_utf8(output.stderr).unwrap());
+        process::abort();
+    }
 }
 
 pub fn remove_pkg(pkgname: &str) {
@@ -31,10 +38,14 @@ pub fn remove_pkg(pkgname: &str) {
         pkgname.to_string(),
     ];
     let output = crate::core::exec_within_texenv("tlmgr", args);
-    // if !tlmgroutput.status.success() {
-    println!("{}", String::from_utf8(output.stdout).unwrap());
-    println!("{}", String::from_utf8(output.stderr).unwrap());
-    // }
+    if !output.status.success() {
+        println!(
+            "Error removing package from TexLive, see following tlmgr output for more details:"
+        );
+        println!("{}", String::from_utf8(output.stdout).unwrap());
+        println!("{}", String::from_utf8(output.stderr).unwrap());
+        process::abort();
+    }
 }
 pub fn search_file(filename: &str) {
     let output = Command::new("tlmgr")

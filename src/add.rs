@@ -6,5 +6,5 @@
 pub fn package(pkgname: &str) {
     println!("Adding package: {}", pkgname);
     crate::tlmgr::install_pkg(pkgname);
-    //Todo: add to TOML
+    crate::core::config::add_project_dependency(pkgname.to_string(), "texlive".to_string());
 }

@@ -11,4 +11,5 @@ license = "MIT OR Apache-2.0"
 clap = { version = "4.5", features = ["derive"]}
 dialoguer = "0.12.0"
 indoc = "2.0.7"
-toml_edit = "0.23.7"
+serde = { version = "1.0.228", features = ["alloc", "derive", "rc"] }
+toml = "0.9.10"

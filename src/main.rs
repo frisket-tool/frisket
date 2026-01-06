@@ -7,6 +7,7 @@ mod add;
 mod build;
 mod core;
 mod init;
+mod instantiate;
 mod remove;
 mod tlmgr;
 
@@ -48,6 +49,8 @@ enum Cmd {
         #[arg()]
         packagename: String,
     },
+    #[command(name = "instantiate")]
+    Instantiate {},
 }
 
 fn main() {
@@ -61,5 +64,6 @@ fn main() {
         }
         Cmd::Build { filename } => unsafe { crate::build::run_engine(filename) },
         Cmd::Init { directory } => crate::init::initialize_project_directory(directory),
+        Cmd::Instantiate {} => crate::instantiate::instantiate(),
     }
 }

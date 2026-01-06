@@ -43,8 +43,9 @@ pub fn texengine_error_check(outputstring: String) {
 }
 
 pub unsafe fn run_engine(filename: String) {
+    let conf = crate::core::config::read_project_config();
     let output = crate::core::exec_within_texenv(
-        "pdflatex",
+        conf.tools.tex.as_str(),
         vec![crate::core::texfile_default_check(filename)],
     );
     if !output.status.success() {
