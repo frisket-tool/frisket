@@ -15,7 +15,7 @@ use clap::{Parser, Subcommand};
 // use toml_edit::{DocumentMut, value};
 
 #[derive(Parser, Debug)]
-#[command(author = "Jan Philipp Thiele", version = "0.1.1")]
+#[command(author = "Jan Philipp Thiele", version)]
 struct Args {
     #[command(subcommand)]
     command: Cmd,
