@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2025 Jan Philipp Thiele
+ * (C) Copyright 2025-2026 Jan Philipp Thiele
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
