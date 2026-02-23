@@ -15,7 +15,7 @@ use clap::{Parser, Subcommand};
 // use toml_edit::{DocumentMut, value};
 
 #[derive(Parser, Debug)]
-#[command(author = "Jan Philipp Thiele", version = "0.1.0")]
+#[command(author = "Jan Philipp Thiele", version = "0.1.1")]
 struct Args {
     #[command(subcommand)]
     command: Cmd,
@@ -29,6 +29,9 @@ enum Cmd {
         /// (optional) Name of different TeX file to build
         #[arg(default_value = "")]
         filename: String,
+        /// Auto-Mode: install missing packages without asking
+        #[arg(short, long, action)]
+        auto: bool,
     },
     /// Initialize new TeX project in directory
     #[command(name = "init")]
@@ -62,7 +65,7 @@ fn main() {
         Cmd::Remove { packagename } => {
             crate::remove::package(&packagename);
         }
-        Cmd::Build { filename } => unsafe { crate::build::run_engine(filename) },
+        Cmd::Build { filename, auto } => unsafe { crate::build::run_engine(filename, auto) },
         Cmd::Init { directory } => crate::init::initialize_project_directory(directory),
         Cmd::Instantiate {} => crate::instantiate::instantiate(),
     }

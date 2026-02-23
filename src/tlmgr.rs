@@ -49,7 +49,7 @@ pub fn remove_pkg(pkgname: &str) {
         process::abort();
     }
 }
-pub fn search_file_and_install_pkg(filename: &str) {
+pub fn search_file_and_install_pkg(filename: &str,automode:bool) {
     let output = Command::new("tlmgr")
         .arg("search")
         .arg("--global")
@@ -83,7 +83,9 @@ pub fn search_file_and_install_pkg(filename: &str) {
     if packages.is_empty() {
         println!("File not found through TeXLive manager.\n Exiting.");
     } else if packages.len() == 1 {
-        let confirmation = Confirm::new()
+        let mut confirmation = true;
+        if !automode {
+            confirmation = Confirm::new()
             .with_prompt(format!(
                 "Found {} in {}, do you want to install it?",
                 filename,
@@ -91,7 +93,7 @@ pub fn search_file_and_install_pkg(filename: &str) {
             ))
             .interact()
             .unwrap();
-
+        }
         if confirmation {
             add::package(packages.first().unwrap());
             println!("Package installed, retrying build.");
