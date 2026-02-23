@@ -17,7 +17,7 @@ fn texengine_handle_latex_error(errorline: &str) {
             "Missing file {}, searching for it through tlmgr",
             missingfile
         );
-        crate::tlmgr::search_file(missingfile.as_str());
+        crate::tlmgr::search_file_and_install_pkg(missingfile.as_str());
     }
 }
 
@@ -36,19 +36,26 @@ fn texengine_error_match(errorline: &str) {
 
 pub fn texengine_error_check(outputstring: String) {
     for part in outputstring.lines() {
+        println!("{}", part.to_string());
         if part.starts_with("!") {
             texengine_error_match(part);
+            return;
         }
     }
 }
 
 pub unsafe fn run_engine(filename: String) {
     let conf = crate::core::config::read_project_config();
-    let output = crate::core::exec_within_texenv(
+    let mut output = crate::core::exec_within_texenv(
         conf.tools.tex.as_str(),
-        vec![crate::core::texfile_default_check(filename)],
+        vec![crate::core::texfile_default_check(filename.clone())],
     );
-    if !output.status.success() {
+    while !output.status.success() {
         crate::build::texengine_error_check(String::from_utf8(output.stdout).unwrap());
+        output = crate::core::exec_within_texenv(
+            conf.tools.tex.as_str(),
+            vec![crate::core::texfile_default_check(filename.clone())],
+        );
     }
+    println!("Build successfull.");
 }

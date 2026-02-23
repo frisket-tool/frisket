@@ -10,6 +10,8 @@ use std::{
 
 use dialoguer::Confirm;
 
+use crate::add;
+
 pub fn init_usertree() {
     crate::core::exec_within_texenv("tlmgr", vec!["init-usertree".to_string()]);
 }
@@ -47,7 +49,7 @@ pub fn remove_pkg(pkgname: &str) {
         process::abort();
     }
 }
-pub fn search_file(filename: &str) {
+pub fn search_file_and_install_pkg(filename: &str) {
     let output = Command::new("tlmgr")
         .arg("search")
         .arg("--global")
@@ -91,8 +93,11 @@ pub fn search_file(filename: &str) {
             .unwrap();
 
         if confirmation {
-            install_pkg(packages.first().unwrap());
-            println!("Retrying build! (TODO)");
+            add::package(packages.first().unwrap());
+            println!("Package installed, retrying build.");
+        } else {
+            println!("No package installed, cancelling build.");
+            process::abort();
         }
     } else {
     }
