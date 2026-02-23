@@ -11,8 +11,7 @@ mod instantiate;
 mod remove;
 mod tlmgr;
 
-use clap::{Parser, Subcommand};
-// use toml_edit::{DocumentMut, value};
+use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[command(author = "Jan Philipp Thiele", version)]
@@ -21,6 +20,33 @@ struct Args {
     command: Cmd,
 }
 
+#[derive(ValueEnum, Default, Clone, Debug)]
+enum Toolchain {
+    #[default]
+    Quick,
+    Full,
+    Check,
+    Custom,
+    Tex,
+    Bib,
+    Lint,
+    Format,
+    Spellcheck,
+}
+
+fn toolchain_to_commandstring(toolchain: Toolchain) -> String {
+    match toolchain {
+        Toolchain::Quick => return String::from("T"),
+        Toolchain::Full => return String::from("TTBT"),
+        Toolchain::Check => return String::from("FLS"),
+        Toolchain::Custom => return String::from("custom"),
+        Toolchain::Tex => return String::from("T"),
+        Toolchain::Bib => return String::from("B"),
+        Toolchain::Lint => return String::from("L"),
+        Toolchain::Format => return String::from("F"),
+        Toolchain::Spellcheck => return String::from("S"),
+    }
+}
 #[derive(Subcommand, Debug)]
 enum Cmd {
     /// Build the main TeX document specified in texproject.toml
@@ -29,6 +55,9 @@ enum Cmd {
         /// (optional) Name of different TeX file to build
         #[arg(default_value = "")]
         filename: String,
+        /// Toolchain for building
+        #[clap(value_enum, default_value_t)]
+        toolchain: Toolchain,
         /// Auto-Mode: install missing packages without asking
         #[arg(short, long, action)]
         auto: bool,
@@ -65,7 +94,13 @@ fn main() {
         Cmd::Remove { packagename } => {
             crate::remove::package(&packagename);
         }
-        Cmd::Build { filename, auto } => unsafe { crate::build::run_engine(filename, auto) },
+        Cmd::Build {
+            filename,
+            toolchain,
+            auto,
+        } => unsafe {
+            crate::build::run_toolchain(filename, toolchain_to_commandstring(toolchain), auto)
+        },
         Cmd::Init { directory } => crate::init::initialize_project_directory(directory),
         Cmd::Instantiate {} => crate::instantiate::instantiate(),
     }

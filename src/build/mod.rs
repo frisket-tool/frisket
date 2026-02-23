@@ -3,59 +3,74 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-fn texengine_handle_package_error(errorline: &str) {
-    let errorpackage = errorline.split_whitespace().nth(2).unwrap();
-    println!("Error from package {}!", errorpackage);
-}
+mod texengine;
+mod linter;
 
-fn texengine_handle_latex_error(errorline: &str, automode: bool) {
-    let errortype = errorline.split_whitespace().nth(3).unwrap();
-    if errortype.eq("File") {
-        let missingfile = errorline.split_whitespace().nth(4).unwrap();
-        let missingfile = missingfile.replace(&['\'', '`'], "");
-        println!(
-            "Missing file {}, searching for it through tlmgr",
-            missingfile
-        );
-        crate::tlmgr::search_file_and_install_pkg(missingfile.as_str(), automode);
-    }
-}
+use std::process::{self, Command};
 
-fn texengine_error_match(errorline: &str, automode: bool) {
-    // println!("{}", errorline);
-    if errorline.starts_with("! LaTeX Error:") {
-        texengine_handle_latex_error(errorline, automode);
-    } else if errorline.starts_with("! Package") {
-        texengine_handle_package_error(errorline);
-    } else if errorline.starts_with("! Emergency stop") {
-    } else if errorline.starts_with("!  ==> Fatal") {
-    } else {
-        println!("Unknown build error!")
-    }
-}
 
-pub fn texengine_error_check(outputstring: String, automode: bool) {
-    for part in outputstring.lines() {
-        println!("{}", part.to_string());
-        if part.starts_with("!") {
-            texengine_error_match(part, automode);
-            return;
-        }
-    }
-}
 
-pub unsafe fn run_engine(filename: String, automode: bool) {
+pub unsafe fn run_toolchain(filename: String, toolchain: String, automode: bool){
     let conf = crate::core::config::read_project_config();
-    let mut output = crate::core::exec_within_texenv(
-        conf.tools.tex.as_str(),
-        vec![crate::core::texfile_default_check(filename.clone())],
-    );
-    while !output.status.success() {
-        crate::build::texengine_error_check(String::from_utf8(output.stdout).unwrap(), automode);
-        output = crate::core::exec_within_texenv(
-            conf.tools.tex.as_str(),
-            vec![crate::core::texfile_default_check(filename.clone())],
-        );
+    let mut _toolchain = toolchain;
+    if _toolchain.contains("custom"){
+        _toolchain = conf.tools.custom_toolchain;
+        println!("running custom toolchain: {}",_toolchain);
+    } else{
+        println!("running toolchain: {}",_toolchain);
     }
-    println!("Build successfull.");
+    
+    for c in _toolchain.chars(){
+        match c{ 
+            'B' => run_bib(filename.clone()),
+            'T' => texengine::run(filename.clone(), automode),
+            'L' => linter::run(filename.clone()),
+            'F' => run_format(filename.clone()),
+            'S' => run_spellcheck(),
+            _ => {
+                println!("unknown toolchain command {}",c);
+                println!("options are:");
+                println!("- T: texengine");
+                println!("- B: bibliography");
+                println!("- L: lint");
+                println!("- F: format");
+                println!("- S: spellcheck");
+                process::abort();
+            }
+
+        }
+    }   
+}
+
+
+pub fn run_bib(filename: String){
+    let conf = crate::core::config::read_project_config();
+    let output = crate::core::exec_within_texenv(&conf.tools.bib.as_str(), vec![crate::core::texfile_default_check(filename.clone())]);
+    if !output.status.success(){
+        println!("error in building bibliography!");
+        println!("{}",String::from_utf8(output.stdout).unwrap());
+        println!("{}",String::from_utf8(output.stderr).unwrap());
+        process::abort()
+    }
+    println!("Bibliography build successfull.")
+}
+
+
+pub fn run_format(filename: String){
+    //Todo: format all tex files in folder?!
+    let conf = crate::core::config::read_project_config();
+    let output = crate::core::exec_within_texenv(&&conf.tools.format.as_str(), vec![crate::core::texfile_default_check(filename.clone())]);
+    print!("{}",String::from_utf8(output.stderr).unwrap());
+    if !output.status.success(){
+        println!("error during formatting!");
+        println!("{}",String::from_utf8(output.stdout).unwrap());
+        process::abort()
+    }
+    println!("Formatting successfull.")
+}
+
+pub fn run_spellcheck(){
+    let conf = crate::core::config::read_project_config();
+    let output = Command::new(&&&conf.tools.spellcheck.as_str()).output().unwrap();
+    print!("{}",String::from_utf8(output.stdout).unwrap());
 }

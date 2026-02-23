@@ -12,7 +12,9 @@ fn default_textools() -> TexTools {
         tex: "pdflatex".to_string(),
         bib: "bibtext".to_string(),
         lint: "chktext".to_string(),
-        format: "texfmt".to_string(),
+        format: "tex-fmt".to_string(),
+        spellcheck: "codespell".to_string(),
+        custom_toolchain: "T".to_string(),
     }
 }
 
@@ -46,6 +48,8 @@ pub struct TexTools {
     pub bib: String,
     pub lint: String,
     pub format: String,
+    pub spellcheck: String,
+    pub custom_toolchain: String,
 }
 
 #[derive(Deserialize, Serialize)]
