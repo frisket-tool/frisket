@@ -3,12 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
-fn handle_package_error(errorline: &str) {
+use std::process;
+
+fn handle_package_error(errorline: &str) -> Result<(),String>{
     let errorpackage = errorline.split_whitespace().nth(2).unwrap();
-    println!("Error from package {}!", errorpackage);
+    return Err(format!("Error from package {errorpackage}!"));
 }
 
-fn handle_latex_error(errorline: &str, automode: bool) {
+fn handle_latex_error(errorline: &str, automode: bool) ->Result<(), String>{
     let errortype = errorline.split_whitespace().nth(3).unwrap();
     if errortype.eq("File") {
         let missingfile = errorline.split_whitespace().nth(4).unwrap();
@@ -18,30 +20,34 @@ fn handle_latex_error(errorline: &str, automode: bool) {
             missingfile
         );
         crate::tlmgr::search_file_and_install_pkg(missingfile.as_str(), automode);
+        return Ok(());
     }
+    return Err(String::from("Unknown LaTeX Error"));
 }
 
-fn match_error(errorline: &str, automode: bool) {
+fn match_error(errorline: &str, automode: bool) -> Result<(), String>{
     // println!("{}", errorline);
     if errorline.starts_with("! LaTeX Error:") {
-        handle_latex_error(errorline, automode);
+        return  handle_latex_error(errorline, automode);
     } else if errorline.starts_with("! Package") {
-        handle_package_error(errorline);
+        return handle_package_error(errorline);
     } else if errorline.starts_with("! Emergency stop") {
+        return Err(String::from("Emergency stop!"));
     } else if errorline.starts_with("!  ==> Fatal") {
+        return Err(String::from("Fatal error"));
     } else {
-        println!("Unknown build error!")
+        return Err(String::from("Unknown build error!"))
     }
 }
 
-fn check_error(outputstring: String, automode: bool) {
+fn check_error(outputstring: String, automode: bool) -> Result<(), String>{
     for part in outputstring.lines() {
         // println!("{}", part.to_string());
         if part.starts_with("!") {
-            match_error(part, automode);
-            return;
+            return match_error(part, automode);
         }
     }
+    return Ok(());
 }
 
 pub fn run(filename: String, automode: bool) {
@@ -51,11 +57,18 @@ pub fn run(filename: String, automode: bool) {
         vec![crate::core::texfile_default_check(filename.clone())],
     );
     while !output.status.success() {
-        check_error(String::from_utf8(output.stdout).unwrap(), automode);
-        output = crate::core::exec_within_texenv(
-            conf.tools.tex.as_str(),
-            vec![crate::core::texfile_default_check(filename.clone())],
-        );
+        let res = check_error(String::from_utf8(output.stdout.clone()).unwrap(), automode);
+        if res.is_err() {
+            println!("{}",res.unwrap_err());
+            println!("Showing full LaTeX output:");
+            print!("{}",String::from_utf8(output.stdout.clone()).unwrap());
+            process::abort();
+        } else {
+            output = crate::core::exec_within_texenv(
+                conf.tools.tex.as_str(),
+                vec![crate::core::texfile_default_check(filename.clone())],
+            );
+        }
     }
     println!("Tex build successfull.");
 }
