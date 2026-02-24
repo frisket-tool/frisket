@@ -56,7 +56,7 @@ enum Cmd {
         #[arg(default_value = "")]
         filename: String,
         /// Toolchain for building
-        #[clap(value_enum, default_value_t)]
+        #[clap(value_enum,long, default_value_t)]
         toolchain: Toolchain,
         /// Auto-Mode: install missing packages without asking
         #[arg(short, long, action)]
