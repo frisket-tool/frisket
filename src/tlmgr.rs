@@ -82,6 +82,7 @@ pub fn search_file_and_install_pkg(filename: &str,automode:bool) {
     }
     if packages.is_empty() {
         println!("File not found through TeXLive manager.\n Exiting.");
+        process::abort();
     } else if packages.len() == 1 {
         let mut confirmation = true;
         if !automode {
