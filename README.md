@@ -39,6 +39,29 @@ use `frisket help` for the list of available commands and `frisket help <COMMAND
 So far frisket is developed under Linux only,
 but should work on Windows or MacOS as well.
 
+## Tab Autocompletion
+
+frisket can now (>=v0.2.1) generate completions files for various shell tools.
+Run one of the following commands depending on your shell to generate them
+
+```bash
+# Bash
+frisket completions bash > ~/.local/share/bash-completion/completions/frisket
+
+# Zsh
+frisket completions zsh > ~/.zfunc/_frisket
+
+# Fish
+frisket completions fish > ~/.config/fish/completions/frisket.fish
+
+# PowerShell - add to profile
+frisket completions powershell >> $PROFILE
+
+```
+
+You might need to restart your shell for the changes to take effect.
+
+
 ## License
 frisket is licensed under either of 
 
