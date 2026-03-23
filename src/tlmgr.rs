@@ -10,7 +10,7 @@ use std::{
 
 use dialoguer::Confirm;
 
-use crate::add;
+use crate::{add, core::config::texlive_version, tinytex};
 
 pub fn init_usertree() {
     crate::core::exec_within_texenv("tlmgr", vec!["init-usertree".to_string()]);
@@ -49,8 +49,9 @@ pub fn remove_pkg(pkgname: &str) {
         process::abort();
     }
 }
-pub fn search_file_and_install_pkg(filename: &str,automode:bool) {
-    let output = Command::new("tlmgr")
+pub fn search_file_and_install_pkg(filename: &str, automode: bool) {
+    let bin = tinytex::binary_string(texlive_version(), "tlmgr");
+    let output = Command::new(bin)
         .arg("search")
         .arg("--global")
         .arg("--file")
@@ -87,13 +88,13 @@ pub fn search_file_and_install_pkg(filename: &str,automode:bool) {
         let mut confirmation = true;
         if !automode {
             confirmation = Confirm::new()
-            .with_prompt(format!(
-                "Found {} in {}, do you want to install it?",
-                filename,
-                packages.first().unwrap()
-            ))
-            .interact()
-            .unwrap();
+                .with_prompt(format!(
+                    "Found {} in {}, do you want to install it?",
+                    filename,
+                    packages.first().unwrap()
+                ))
+                .interact()
+                .unwrap();
         }
         if confirmation {
             add::package(packages.first().unwrap());

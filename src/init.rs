@@ -19,6 +19,7 @@ pub fn initialize_project_directory(directory: String) {
     let mut projecttoml = File::create("texproject.toml").expect("file could not be created");
     indoc::writedoc! {projecttoml,r#"
         main = "main"
+        texlive_version = 2026
         [tools]
         tex = "pdflatex"
         bib = "bibtex"

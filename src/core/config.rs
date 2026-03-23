@@ -25,6 +25,10 @@ pub fn read_project_config() -> TexProject {
     return conf;
 }
 
+pub fn texlive_version() -> i16 {
+    return read_project_config().texlive_version;
+}
+
 fn write_project_config(toml: TexProject) {
     let tomlstring = toml::to_string_pretty(&toml).expect("serializing TOML failed");
     std::fs::write("texproject.toml", tomlstring).expect("Writing TOML failed");
@@ -55,6 +59,7 @@ pub struct TexTools {
 #[derive(Deserialize, Serialize)]
 pub struct TexProject {
     pub main: String,
+    pub texlive_version: i16,
     #[serde(default = "default_textools")]
     pub tools: TexTools,
     pub dependencies: Table,
