@@ -4,9 +4,12 @@
  */
 use std::process::{Command};
 
+use crate::{core::config::texlive_version, tinytex};
+
 pub fn run(filename:String){
     let conf = crate::core::config::read_project_config();
-    let output = Command::new(&conf.tools.lint.as_str())
+    let bin = tinytex::binary_string(texlive_version(),&conf.tools.lint.as_str());
+    let output = Command::new(bin)
         .arg(crate::core::texfile_default_check(filename.clone()))
         .output()
         .expect("File not found!");

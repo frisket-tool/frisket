@@ -8,6 +8,8 @@ mod linter;
 
 use std::process::{self, Command};
 
+use crate::{core::config::texlive_version, tinytex::{binary_string}};
+
 
 
 pub unsafe fn run_toolchain(filename: String, toolchain: String, automode: bool){
@@ -71,6 +73,7 @@ pub fn run_format(filename: String){
 
 pub fn run_spellcheck(){
     let conf = crate::core::config::read_project_config();
-    let output = Command::new(&&&conf.tools.spellcheck.as_str()).output().unwrap();
+    let bin = binary_string(texlive_version(),&conf.tools.spellcheck.as_str());
+    let output = Command::new(bin).output().unwrap();
     print!("{}",String::from_utf8(output.stdout).unwrap());
 }

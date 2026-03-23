@@ -15,13 +15,25 @@ used in printing presses, so it seemed a fitting choice for a program trying to 
 ## Planned features
 - Project templates, e.g. for specific journals
 - Custom LaTeX package management, e.g. for local beamer themes not on CTAN
-- Handling installation of TinyTeX directly by frisket
 
 ## Installation
-frisket depends on TeXLive, the recommended installation is through TinyTeX-1 providing a minimal but usable set of LaTeX tools and packages.
-
 For now frisket has to be build and installed by hand,
 but we plan to release it as a crate in the future.
+
+For this you need to install Rust and cargo and then run
+```
+cargo build
+``` 
+inside the checked out repository.
+The binary will be in the `target/debug` subfolder and can be linked inside your bin folder to be available everywhere.
+
+## Initial setup
+After building and installing/linking frisket run `frisket setup` 
+to prepare common directories and checkout metadata for the TinyTeX releases repository.
+
+Afterwards, run `frisket install` to install the latest TinyTeX release
+or `frisket install <year>` to install the latest release of each year.
+Since TeXLive is a rolling release within each year it does not make sense to install older releases.
 
 ## Usage
 frisket is still work in progress so functionality might be added to each command in the near future.
@@ -31,13 +43,16 @@ As a CLI tool it is run as
 frisket <COMMAND>
 ```
 
-use `frisket help` for the list of available commands and `frisket help <COMMAND>`
+use `frisket help` for the list of available commands and `frisket help <COMMAND>` for a specific subcommand.
 
 
 ## Platform support
 
 So far frisket is developed under Linux only,
 but should work on Windows or MacOS as well.
+
+**Important** Installation and building for Windows is not finished or tested,
+this will be done in a future release.
 
 ## Tab Autocompletion
 
@@ -71,6 +86,6 @@ frisket is licensed under either of
 
 at your option.
 
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in uv
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in frisket
 by you, as defined in the Apache-2.0 license, shall be dually licensed as above, without any
 additional terms or conditions.

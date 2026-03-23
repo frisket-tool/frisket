@@ -61,6 +61,15 @@ pub enum Cmd {
         #[arg(value_enum)]
         shell: Shell
     },
+    /// setup directories for frisket
+    #[command(name="setup")]
+    Setup{ },
+    /// Install TinyTeX 
+    #[command(name="install")]
+    Install{ 
+        #[arg(default_value="2026")]
+        year: i16
+    },
 }
 
 
