@@ -6,7 +6,6 @@
 use git2::build::RepoBuilder;
 use std::fs::{File, create_dir_all};
 use std::io::Write;
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 use std::path::PathBuf;
 use tempfile::{Builder, TempDir};
 
