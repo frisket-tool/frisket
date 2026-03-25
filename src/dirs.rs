@@ -5,14 +5,13 @@
 
 use std::path::{PathBuf};
 
-use xdg::BaseDirectories;
-
-pub fn basedir() -> BaseDirectories{
-    return xdg::BaseDirectories::with_prefix("frisket");
-}
+use directories::BaseDirs;
 
 pub fn data_home() -> PathBuf{
-    return basedir().get_data_home().unwrap();
+    let bd = BaseDirs::new().unwrap();
+    let mut basedir = PathBuf::from(bd.data_dir());
+    basedir.push("frisket");
+    return basedir;
 }
 
 pub fn tinytex_repo() -> PathBuf{

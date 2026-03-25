@@ -6,7 +6,6 @@
 use git2::build::RepoBuilder;
 use std::fs::{File, create_dir_all};
 use std::io::Write;
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 use std::path::PathBuf;
 use tempfile::{Builder, TempDir};
 
@@ -24,7 +23,7 @@ pub fn install(year: i16) {
     let version = get_latest_version_number(Some(year));
     let url = release_url(version.clone());
     let tmp_dir = Builder::new().prefix("frisket-tinytex").tempdir().unwrap();
-    println!("Downloading TinyTex {}", version);
+    println!("Downloading TinyTeX {}", version);
     let release_fname = download(url, &tmp_dir);
     unpack_and_move(release_fname, year);
 }
@@ -61,7 +60,7 @@ fn unpack_and_move(fname: PathBuf, year: i16) {
     let tar = GzDecoder::new(tar_gz);
     let mut archive = Archive::new(tar);
     let mut tt_dir = crate::dirs::data_home();
-    tt_dir.push("TinyTex");
+    tt_dir.push("TinyTeX");
     tt_dir.push(year.to_string());
     println!("Installing into {}", tt_dir.clone().to_str().unwrap());
     let prefix = unpack_prefix();
