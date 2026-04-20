@@ -7,6 +7,7 @@ use git2::build::RepoBuilder;
 use std::fs::{File, create_dir_all};
 use std::io::Write;
 use std::path::PathBuf;
+use chrono::Datelike;
 use tempfile::{Builder, TempDir};
 
 //TODO: add option for year to get latest of said year
@@ -26,6 +27,9 @@ pub fn install(year: i16) {
     println!("Downloading TinyTeX {}", version);
     let release_fname = download(url, &tmp_dir);
     unpack_and_move(release_fname, year);
+    if (year as i32) < chrono::Utc::now().year(){
+        fix_older_texlive_repositories(year);
+    }
 }
 
 fn download(url: String, tmp_dir: &TempDir) -> PathBuf {
@@ -41,6 +45,28 @@ fn download(url: String, tmp_dir: &TempDir) -> PathBuf {
     let content = response.bytes().unwrap();
     dest.write_all(&content).unwrap();
     return fname;
+}
+
+pub fn fix_older_texlive_repositories(year: i16){
+    let bin = binary_string(year,"tlmgr");
+
+    let mut historic_repo = "https://pi.kwarc.info/historic/systems/texlive/".to_string();
+    historic_repo.push_str(year.to_string().as_str());
+    historic_repo.push_str("tlnet-final/");
+
+    println!("Setting up older TexLive version to use repo: {}",historic_repo.to_owned());
+    let output = std::process::Command::new(bin)
+        .arg("option")
+        .arg("repository")
+        .arg(historic_repo.to_owned())
+        .output()
+        .expect("Error setting tlmgr repository!");
+
+    if !output.status.success(){
+        println!("Something went wrong setting the repository option to {}",historic_repo);
+        println!("{}", String::from_utf8(output.stdout).unwrap());
+        println!("{}", String::from_utf8(output.stderr).unwrap());
+    }
 }
 
 #[cfg(target_os = "linux")]
@@ -72,7 +98,7 @@ fn unpack_and_move(fname: PathBuf, year: i16) {
             let path = entry.path()?.strip_prefix(prefix.as_str())?.to_owned();
             let mut dir = tt_dir.clone();
             dir.push(path);
-            entry.unpack(&dir)?;
+            entry.unpack(&dir).unwrap();
             Ok(dir)
         })
         .filter_map(|e| e.ok())
