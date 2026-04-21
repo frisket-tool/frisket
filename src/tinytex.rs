@@ -22,7 +22,13 @@ pub fn get_latest_version_number(year: Option<i16>) -> String {
 
 pub fn install(year: i16) {
     let version = get_latest_version_number(Some(year));
-    let url = release_url(version.clone());
+
+    let mut url: String = "".to_owned();
+    if year > 2025 {
+        url.push_str(&new_release_url(version.clone()));
+    } else {
+        url.push_str(&legacy_release_url(version.clone()));
+    };
     let tmp_dir = Builder::new().prefix("frisket-tinytex").tempdir().unwrap();
     println!("Downloading TinyTeX {}", version);
     let release_fname = download(url, &tmp_dir);
@@ -52,7 +58,7 @@ pub fn fix_older_texlive_repositories(year: i16){
 
     let mut historic_repo = "https://pi.kwarc.info/historic/systems/texlive/".to_string();
     historic_repo.push_str(year.to_string().as_str());
-    historic_repo.push_str("tlnet-final/");
+    historic_repo.push_str("/tlnet-final/");
 
     println!("Setting up older TexLive version to use repo: {}",historic_repo.to_owned());
     let output = std::process::Command::new(bin)
@@ -78,24 +84,21 @@ fn unpack_prefix() -> String{
     return "TinyTeX".to_string();
 }
 
-#[cfg(any(target_os = "linux",target_os="macos"))]
-fn unpack_and_move(fname: PathBuf, year: i16) {
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn unpack_and_move_legacy(tar_gz: File, year: i16) {
     use flate2::read::GzDecoder;
-    use tar::Archive;
-    let tar_gz = File::open(fname.as_path()).unwrap();
     let tar = GzDecoder::new(tar_gz);
     let mut archive = Archive::new(tar);
-    let mut tt_dir = crate::dirs::data_home();
-    tt_dir.push("TinyTeX");
-    tt_dir.push(year.to_string());
-    println!("Installing into {}", tt_dir.clone().to_str().unwrap());
-    let prefix = unpack_prefix();
+    let tt_dir = tt_dir(year);
     archive
         .entries()
         .unwrap()
         .filter_map(|e| e.ok())
         .map(|mut entry| -> Result<PathBuf, Box<dyn std::error::Error>> {
-            let path = entry.path()?.strip_prefix(prefix.as_str())?.to_owned();
+            let path = entry
+                .path()?
+                .strip_prefix(unpack_prefix().as_str())?
+                .to_owned();
             let mut dir = tt_dir.clone();
             dir.push(path);
             entry.unpack(&dir).unwrap();
@@ -105,9 +108,54 @@ fn unpack_and_move(fname: PathBuf, year: i16) {
         .for_each(|x| println!("> {}", x.display()));
 }
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn unpack_and_move_new(tar_xz: File, year: i16) {
+    use xz::read::XzDecoder;
+    let tt_dir = tt_dir(year);
+    let tar = XzDecoder::new(tar_xz);
+    let mut archive = Archive::new(tar);
 
-#[cfg(all(target_os = "linux",target_arch="x86_64"))]
-fn release_url(version: String) -> String {
+    archive
+        .entries()
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|mut entry| -> Result<PathBuf, Box<dyn std::error::Error>> {
+            let path = entry
+                .path()?
+                .strip_prefix(unpack_prefix().as_str())?
+                .to_owned();
+            let mut dir = tt_dir.clone();
+            dir.push(path);
+            entry.unpack(&dir).unwrap();
+            Ok(dir)
+        })
+        .filter_map(|e| e.ok())
+        .for_each(|x| println!("> {}", x.display()));
+}
+
+fn tt_dir(year: i16) -> PathBuf {
+    let mut tt_dir = crate::dirs::data_home();
+    tt_dir.push("TinyTeX");
+    tt_dir.push(year.to_string());
+    return tt_dir;
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn unpack_and_move(fname: PathBuf, year: i16) {
+    let mut tt_dir = crate::dirs::data_home();
+    tt_dir.push("TinyTeX");
+    tt_dir.push(year.to_string());
+    println!("Installing into {}", tt_dir.clone().to_str().unwrap());
+    let tar_gz = File::open(fname.as_path()).unwrap();
+    if year > 2025 {
+        unpack_and_move_new(tar_gz, year);
+    } else {
+        unpack_and_move_legacy(tar_gz, year);
+    }
+}
+
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn legacy_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
@@ -118,9 +166,21 @@ fn release_url(version: String) -> String {
     .join("");
     return result;
 }
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+fn new_release_url(version: String) -> String {
+    let result = [
+        "https://github.com/rstudio/tinytex-releases/releases/download/",
+        version.as_str(),
+        "/TinyTex-1-linux-x86_64-",
+        version.as_str(),
+        ".tar.xz",
+    ]
+    .join("");
+    return result;
+}
 
-#[cfg(all(target_os = "linux",target_arch="aarch64"))]
-fn release_url(version: String) -> String {
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
+fn legacy_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
@@ -132,15 +192,38 @@ fn release_url(version: String) -> String {
     return result;
 }
 
-
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
+fn new_release_url(version: String) -> String {
+    let result = [
+        "https://github.com/rstudio/tinytex-releases/releases/download/",
+        version.as_str(),
+        "/TinyTex-1-linux-arm64-",
+        version.as_str(),
+        ".tar.xz",
+    ]
+    .join("");
+    return result;
+}
 #[cfg(target_os = "macos")]
-fn release_url(version: String) -> String {
+fn legacy_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
         "/TinyTex-1-",
         version.as_str(),
         ".tgz",
+    ]
+    .join("");
+    return result;
+}
+#[cfg(target_os = "macos")]
+fn new_release_url(version: String) -> String {
+    let result = [
+        "https://github.com/rstudio/tinytex-releases/releases/download/",
+        version.as_str(),
+        "/TinyTex-1-darwin",
+        version.as_str(),
+        ".tar.xz",
     ]
     .join("");
     return result;
