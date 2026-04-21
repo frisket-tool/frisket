@@ -9,10 +9,10 @@ use std::io::Write;
 pub fn initialize_project_directory(directory: String,year: i16) {
     let starting_directory = std::env::current_dir().unwrap();
     let dir = directory.as_str();
-    std::fs::create_dir(dir).unwrap();
+    std::fs::create_dir_all(dir).unwrap();
     // Change into directory
     std::env::set_current_dir(dir).unwrap();
-    std::fs::create_dir(".texenv").unwrap();
+    std::fs::create_dir_all(".texenv").unwrap();
     // preset??
 
     // Create texproject.toml
