@@ -38,6 +38,9 @@ pub enum Cmd {
         /// Name of the directory for the TeX project
         #[arg()]
         directory: String,
+        /// Year of TexLive version to use in the project
+        #[arg(short,long,default_value="2026")]
+        year: i16
     },
     /// Add a package dependency to the current project
     #[command(name = "add")]
@@ -90,7 +93,7 @@ pub enum Toolchain {
 pub fn toolchain_to_commandstring(toolchain: Toolchain) -> String {
     match toolchain {
         Toolchain::Quick => return String::from("T"),
-        Toolchain::Full => return String::from("TTBT"),
+        Toolchain::Full => return String::from("TBTT"),
         Toolchain::Check => return String::from("FLS"),
         Toolchain::Custom => return String::from("custom"),
         Toolchain::Tex => return String::from("T"),
