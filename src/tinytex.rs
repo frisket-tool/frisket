@@ -166,7 +166,7 @@ fn legacy_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
-        "/TinyTex-1-",
+        "/TinyTeX-1-",
         version.as_str(),
         ".tar.gz",
     ]
@@ -178,7 +178,7 @@ fn new_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
-        "/TinyTex-1-linux-x86_64-",
+        "/TinyTeX-1-linux-x86_64-",
         version.as_str(),
         ".tar.xz",
     ]
@@ -191,7 +191,7 @@ fn legacy_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
-        "/TinyTex-1-arm64-",
+        "/TinyTeX-1-arm64-",
         version.as_str(),
         ".tar.gz",
     ]
@@ -204,7 +204,7 @@ fn new_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
-        "/TinyTex-1-linux-arm64-",
+        "/TinyTeX-1-linux-arm64-",
         version.as_str(),
         ".tar.xz",
     ]
@@ -216,7 +216,7 @@ fn legacy_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
-        "/TinyTex-1-",
+        "/TinyTeX-1-",
         version.as_str(),
         ".tgz",
     ]
@@ -228,7 +228,7 @@ fn new_release_url(version: String) -> String {
     let result = [
         "https://github.com/rstudio/tinytex-releases/releases/download/",
         version.as_str(),
-        "/TinyTex-1-darwin",
+        "/TinyTeX-1-darwin",
         version.as_str(),
         ".tar.xz",
     ]
