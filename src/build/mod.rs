@@ -53,7 +53,7 @@ pub fn run_bib(filename: String) {
         println!("{}", String::from_utf8(output.stderr).unwrap());
         process::abort()
     }
-    println!("Bibliography build successfull.")
+    println!("Bibliography build successful.")
 }
 
 pub fn run_format(filename: String) {
@@ -69,7 +69,7 @@ pub fn run_format(filename: String) {
         println!("{}", String::from_utf8(output.stdout).unwrap());
         process::abort()
     }
-    println!("Formatting successfull.")
+    println!("Formatting successful.")
 }
 
 pub fn run_spellcheck() {

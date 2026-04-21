@@ -70,5 +70,5 @@ pub fn run(filename: String, automode: bool) {
             );
         }
     }
-    println!("Tex build successfull.");
+    println!("Tex build successful.");
 }
