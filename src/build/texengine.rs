@@ -5,12 +5,12 @@
 
 use std::process;
 
-fn handle_package_error(errorline: &str) -> Result<(),String>{
+fn handle_package_error(errorline: &str) -> Result<(), String> {
     let errorpackage = errorline.split_whitespace().nth(2).unwrap();
     return Err(format!("Error from package {errorpackage}!"));
 }
 
-fn handle_latex_error(errorline: &str, automode: bool) ->Result<(), String>{
+fn handle_latex_error(errorline: &str, automode: bool) -> Result<(), String> {
     let errortype = errorline.split_whitespace().nth(3).unwrap();
     if errortype.eq("File") {
         let missingfile = errorline.split_whitespace().nth(4).unwrap();
@@ -25,10 +25,10 @@ fn handle_latex_error(errorline: &str, automode: bool) ->Result<(), String>{
     return Err(String::from("Unknown LaTeX Error"));
 }
 
-fn match_error(errorline: &str, automode: bool) -> Result<(), String>{
+fn match_error(errorline: &str, automode: bool) -> Result<(), String> {
     // println!("{}", errorline);
     if errorline.starts_with("! LaTeX Error:") {
-        return  handle_latex_error(errorline, automode);
+        return handle_latex_error(errorline, automode);
     } else if errorline.starts_with("! Package") {
         return handle_package_error(errorline);
     } else if errorline.starts_with("! Emergency stop") {
@@ -36,11 +36,11 @@ fn match_error(errorline: &str, automode: bool) -> Result<(), String>{
     } else if errorline.starts_with("!  ==> Fatal") {
         return Err(String::from("Fatal error"));
     } else {
-        return Err(String::from("Unknown build error!"))
+        return Err(String::from("Unknown build error!"));
     }
 }
 
-fn check_error(outputstring: String, automode: bool) -> Result<(), String>{
+fn check_error(outputstring: String, automode: bool) -> Result<(), String> {
     for part in outputstring.lines() {
         // println!("{}", part.to_string());
         if part.starts_with("!") {
@@ -59,9 +59,9 @@ pub fn run(filename: String, automode: bool) {
     while !output.status.success() {
         let res = check_error(String::from_utf8(output.stdout.clone()).unwrap(), automode);
         if res.is_err() {
-            println!("{}",res.unwrap_err());
+            println!("{}", res.unwrap_err());
             println!("Showing full LaTeX output:");
-            print!("{}",String::from_utf8(output.stdout.clone()).unwrap());
+            print!("{}", String::from_utf8(output.stdout.clone()).unwrap());
             process::abort();
         } else {
             output = crate::core::exec_within_texenv(
@@ -70,5 +70,5 @@ pub fn run(filename: String, automode: bool) {
             );
         }
     }
-    println!("Tex build successfull.");
+    println!("Tex build successful.");
 }

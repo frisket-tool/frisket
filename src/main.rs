@@ -36,7 +36,7 @@ fn main() {
         } => unsafe {
             crate::build::run_toolchain(filename, cli::toolchain_to_commandstring(toolchain), auto)
         },
-        Init { directory, year } => crate::init::initialize_project_directory(directory,year),
+        Init { directory, year } => crate::init::initialize_project_directory(directory, year),
         Instantiate {} => crate::instantiate::instantiate(),
         Completions { shell } => {
             let mut cmd = cli::Args::command();

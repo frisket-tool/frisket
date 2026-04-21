@@ -5,8 +5,7 @@
 
 use std::fs::create_dir_all;
 
-
-use crate::{tinytex};
+use crate::tinytex;
 
 pub fn initial() {
     create_directories();

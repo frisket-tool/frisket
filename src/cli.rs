@@ -6,7 +6,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use clap_complete::Shell;
 
-
 #[derive(Parser, Debug)]
 #[command(author = "Jan Philipp Thiele", version)]
 #[command(name = "frisket")]
@@ -15,7 +14,6 @@ pub struct Args {
     #[command(subcommand)]
     pub command: Cmd,
 }
-
 
 #[derive(Subcommand, Debug)]
 pub enum Cmd {
@@ -26,7 +24,7 @@ pub enum Cmd {
         #[arg(default_value = "")]
         filename: String,
         /// Toolchain for building
-        #[clap(value_enum,long, default_value_t)]
+        #[clap(value_enum, long, default_value_t)]
         toolchain: Toolchain,
         /// Auto-Mode: install missing packages without asking
         #[arg(short, long, action)]
@@ -39,8 +37,8 @@ pub enum Cmd {
         #[arg()]
         directory: String,
         /// Year of TexLive version to use in the project
-        #[arg(short,long,default_value="2026")]
-        year: i16
+        #[arg(short, long, default_value = "2026")]
+        year: i16,
     },
     /// Add a package dependency to the current project
     #[command(name = "add")]
@@ -58,23 +56,22 @@ pub enum Cmd {
     #[command(name = "instantiate")]
     Instantiate {},
     /// Generate shell completions
-    #[command(name= "completions")]
+    #[command(name = "completions")]
     Completions {
         /// Shell to generate completions for
         #[arg(value_enum)]
-        shell: Shell
+        shell: Shell,
     },
     /// setup directories for frisket
-    #[command(name="setup")]
-    Setup{ },
-    /// Install TinyTeX 
-    #[command(name="install")]
-    Install{ 
-        #[arg(default_value="2026")]
-        year: i16
+    #[command(name = "setup")]
+    Setup {},
+    /// Install TinyTeX
+    #[command(name = "install")]
+    Install {
+        #[arg(default_value = "2026")]
+        year: i16,
     },
 }
-
 
 #[derive(ValueEnum, Default, Clone, Debug)]
 pub enum Toolchain {
