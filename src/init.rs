@@ -6,20 +6,20 @@
 use std::fs::File;
 use std::io::Write;
 
-pub fn initialize_project_directory(directory: String) {
+pub fn initialize_project_directory(directory: String,year: i16) {
     let starting_directory = std::env::current_dir().unwrap();
     let dir = directory.as_str();
-    std::fs::create_dir(dir).unwrap();
+    std::fs::create_dir_all(dir).unwrap();
     // Change into directory
     std::env::set_current_dir(dir).unwrap();
-    std::fs::create_dir(".texenv").unwrap();
+    std::fs::create_dir_all(".texenv").unwrap();
     // preset??
 
     // Create texproject.toml
     let mut projecttoml = File::create("texproject.toml").expect("file could not be created");
     indoc::writedoc! {projecttoml,r#"
         main = "main"
-        texlive_version = 2026
+        texlive_version = {year}
         [tools]
         tex = "pdflatex"
         bib = "bibtex"
@@ -29,7 +29,7 @@ pub fn initialize_project_directory(directory: String) {
         custom_toolchain = "T"
 
         [dependencies]
-    "#}
+    "#,year=year}
     .expect("foo");
 
     // Create main tex
