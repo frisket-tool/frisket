@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-04-21
+
+Fix schema and unpacking for newer tinytex releaes & add pre-commit as a github action
+
+### Fixed
+- New filename schema since TinyTeX-v2026.04 with explicit os names
+- Unpacking of newer releases which are packed with .tar.xz instead of .tar.gz/.tgz
+
+### Added
+- pre-commit GitHub action
+
 ## [0.3.2] - 2026-04-21
 
 Add option to init to older tex version.
