@@ -25,7 +25,7 @@ fn get_texmfhome() -> String {
 }
 
 pub fn exec_within_texenv(program: &str, args: Vec<String>) -> Output {
-    let bin = tinytex::binary_string(texlive_version(),program);
+    let bin = tinytex::binary_string(texlive_version(), program);
     let output = Command::new(bin)
         .env("TEXMFHOME", get_texmfhome())
         .args(args)

@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
+use chrono::Datelike;
 use git2::build::RepoBuilder;
 use std::fs::{File, create_dir_all};
 use std::io::Write;
 use std::path::PathBuf;
-use chrono::Datelike;
+use tar::Archive;
 use tempfile::{Builder, TempDir};
 
 //TODO: add option for year to get latest of said year
@@ -33,7 +34,7 @@ pub fn install(year: i16) {
     println!("Downloading TinyTeX {}", version);
     let release_fname = download(url, &tmp_dir);
     unpack_and_move(release_fname, year);
-    if (year as i32) < chrono::Utc::now().year(){
+    if (year as i32) < chrono::Utc::now().year() {
         fix_older_texlive_repositories(year);
     }
 }
@@ -53,14 +54,17 @@ fn download(url: String, tmp_dir: &TempDir) -> PathBuf {
     return fname;
 }
 
-pub fn fix_older_texlive_repositories(year: i16){
-    let bin = binary_string(year,"tlmgr");
+pub fn fix_older_texlive_repositories(year: i16) {
+    let bin = binary_string(year, "tlmgr");
 
     let mut historic_repo = "https://pi.kwarc.info/historic/systems/texlive/".to_string();
     historic_repo.push_str(year.to_string().as_str());
     historic_repo.push_str("/tlnet-final/");
 
-    println!("Setting up older TexLive version to use repo: {}",historic_repo.to_owned());
+    println!(
+        "Setting up older TexLive version to use repo: {}",
+        historic_repo.to_owned()
+    );
     let output = std::process::Command::new(bin)
         .arg("option")
         .arg("repository")
@@ -68,19 +72,22 @@ pub fn fix_older_texlive_repositories(year: i16){
         .output()
         .expect("Error setting tlmgr repository!");
 
-    if !output.status.success(){
-        println!("Something went wrong setting the repository option to {}",historic_repo);
+    if !output.status.success() {
+        println!(
+            "Something went wrong setting the repository option to {}",
+            historic_repo
+        );
         println!("{}", String::from_utf8(output.stdout).unwrap());
         println!("{}", String::from_utf8(output.stderr).unwrap());
     }
 }
 
 #[cfg(target_os = "linux")]
-fn unpack_prefix() -> String{
+fn unpack_prefix() -> String {
     return ".TinyTeX".to_string();
 }
 #[cfg(target_os = "macos")]
-fn unpack_prefix() -> String{
+fn unpack_prefix() -> String {
     return "TinyTeX".to_string();
 }
 
@@ -268,8 +275,7 @@ pub fn binary_dir(year: i16) -> PathBuf {
     return bindir;
 }
 
-
-pub fn binary_string(year: i16, program: &str) -> String{
+pub fn binary_string(year: i16, program: &str) -> String {
     let mut bin = binary_dir(year);
     bin.push(program);
     return bin.to_str().unwrap().to_string();

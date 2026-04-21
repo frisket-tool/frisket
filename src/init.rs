@@ -6,7 +6,7 @@
 use std::fs::File;
 use std::io::Write;
 
-pub fn initialize_project_directory(directory: String,year: i16) {
+pub fn initialize_project_directory(directory: String, year: i16) {
     let starting_directory = std::env::current_dir().unwrap();
     let dir = directory.as_str();
     std::fs::create_dir_all(dir).unwrap();
