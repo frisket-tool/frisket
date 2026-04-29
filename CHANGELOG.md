@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.5] - 2026-04-29
+
+### Added 
+- option `tree_only` to `frisket init` to only initialize the `.texenv` directory, e.g. on a cloned project.
+
+### Fixed
+- moved `pre-commit.yml` to correct directory.
+
 ## [0.3.4] - 2026-04-29
 
 Fix error where epstopdf could not be called by pdflatex as it is not 
