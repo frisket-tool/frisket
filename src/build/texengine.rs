@@ -5,9 +5,43 @@
 
 use std::process;
 
+use crate::core::exec_within_texenv;
+
 fn handle_package_error(errorline: &str) -> Result<(), String> {
     let errorpackage = errorline.split_whitespace().nth(2).unwrap();
-    return Err(format!("Error from package {errorpackage}!"));
+    match errorpackage {
+        "pdftex.def" => return handle_package_pdftex_error(errorline),
+        _ => return Err(format!("Error from package {errorpackage}!")),
+    }
+}
+
+fn handle_package_pdftex_error(errorline: &str) -> Result<(), String> {
+    let errortype: &str = errorline.split_whitespace().nth(4).unwrap();
+    if errortype.eq("File") {
+        let filename = errorline
+            .split_whitespace()
+            .nth(5)
+            .unwrap()
+            .split_at(1)
+            .1
+            .trim_end_matches("'");
+        if filename.ends_with("eps-converted-to.pdf") {
+            let epsfile = [filename.trim_end_matches("-eps-converted-to.pdf"), ".eps"].join("");
+            let mut outfilearg = String::from("--outfile=");
+            outfilearg.push_str(filename);
+            let res = exec_within_texenv("epstopdf", vec![outfilearg, epsfile.to_owned()]);
+            if res.status.success() {
+                return Ok(());
+            } else {
+                println!("Error converting with epstopdf");
+                print!("{}", String::from_utf8(res.stdout.clone()).unwrap());
+                print!("{}", String::from_utf8(res.stderr.clone()).unwrap());
+            }
+        }
+        println!("pdftex.def error: File {} not found", filename);
+    }
+    //handle ! Package pdftex.def Error: File `<filename>-eps-converted-to.pdf' not found: using draft setting.
+    return Err(String::from("Unknown pdftex.def Error"));
 }
 
 fn handle_latex_error(errorline: &str, automode: bool) -> Result<(), String> {
@@ -54,14 +88,17 @@ pub fn run(filename: String, automode: bool) {
     let conf = crate::core::config::read_project_config();
     let mut output = crate::core::exec_within_texenv(
         conf.tools.tex.as_str(),
-        vec![crate::core::texfile_default_check(filename.clone())],
+        vec![
+            // String::from("--shell-escape"),
+            crate::core::texfile_default_check(filename.clone()),
+        ],
     );
     while !output.status.success() {
         let res = check_error(String::from_utf8(output.stdout.clone()).unwrap(), automode);
         if res.is_err() {
             println!("{}", res.unwrap_err());
             println!("Showing full LaTeX output:");
-            print!("{}", String::from_utf8(output.stdout.clone()).unwrap());
+            // print!("{}", String::from_utf8(output.stdout.clone()).unwrap());
             process::abort();
         } else {
             output = crate::core::exec_within_texenv(
