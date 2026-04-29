@@ -22,14 +22,18 @@ pub fn install_pkg(pkgname: &str) {
         "install".to_string(),
         pkgname.to_string(),
     ];
-    let output = crate::core::exec_within_texenv("tlmgr", args);
+    let output = crate::core::exec_within_texenv("tlmgr", args.to_owned());
     if !output.status.success() {
-        println!(
-            "Error installing package from TexLive, see following tlmgr output for more details:"
-        );
-        println!("{}", String::from_utf8(output.stdout).unwrap());
-        println!("{}", String::from_utf8(output.stderr).unwrap());
-        process::abort();
+        //retry once
+        let outputtwo = crate::core::exec_within_texenv("tlmgr", args);
+        if !outputtwo.status.success() {
+            println!(
+                "Error installing package from TexLive, see following tlmgr output for more details:"
+            );
+            println!("{}", String::from_utf8(outputtwo.stdout).unwrap());
+            println!("{}", String::from_utf8(outputtwo.stderr).unwrap());
+            process::abort();
+        }
     }
 }
 
