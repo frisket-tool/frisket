@@ -40,7 +40,7 @@ pub enum Cmd {
         #[arg(short, long, default_value = "2026")]
         year: i16,
         /// Only initialize the texmf tree (for existing projects)
-        #[arg(short,long,action)]
+        #[arg(short, long, action)]
         tree_only: bool,
     },
     /// Add a package dependency to the current project
