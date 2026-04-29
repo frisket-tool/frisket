@@ -6,7 +6,7 @@
 use std::fs::File;
 use std::io::Write;
 
-pub fn initialize_project_directory(directory: String, year: i16) {
+pub fn initialize_project_directory(directory: String, year: i16, tree_only: bool) {
     let starting_directory = std::env::current_dir().unwrap();
     let dir = directory.as_str();
     std::fs::create_dir_all(dir).unwrap();
@@ -15,9 +15,10 @@ pub fn initialize_project_directory(directory: String, year: i16) {
     std::fs::create_dir_all(".texenv").unwrap();
     // preset??
 
-    // Create texproject.toml
-    let mut projecttoml = File::create("texproject.toml").expect("file could not be created");
-    indoc::writedoc! {projecttoml,r#"
+    if !(tree_only) {
+        // Create texproject.toml
+        let mut projecttoml = File::create("texproject.toml").expect("file could not be created");
+        indoc::writedoc! {projecttoml,r#"
         main = "main"
         texlive_version = {year}
         [tools]
@@ -30,11 +31,11 @@ pub fn initialize_project_directory(directory: String, year: i16) {
 
         [dependencies]
     "#,year=year}
-    .expect("foo");
+        .expect("foo");
 
-    // Create main tex
-    let mut mainfile = File::create("main.tex").expect("main file could not be created!");
-    indoc::writedoc! {mainfile,r"
+        // Create main tex
+        let mut mainfile = File::create("main.tex").expect("main file could not be created!");
+        indoc::writedoc! {mainfile,r"
         \documentclass[12pt,a4paper]{{article}}
         \title{{My test}}
         \author{{me}}
@@ -44,8 +45,8 @@ pub fn initialize_project_directory(directory: String, year: i16) {
         Foo bar
         \end{{document}}
     "}
-    .expect("bar");
-
+        .expect("bar");
+    }
     // init tlmgr usertree
     crate::tlmgr::init_usertree();
 
